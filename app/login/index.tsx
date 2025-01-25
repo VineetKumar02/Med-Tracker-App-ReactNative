@@ -56,6 +56,8 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.PRIMARY,
         width: '100%',
         flex: 1,
+        borderTopLeftRadius: 50,
+        borderTopRightRadius: 50,
     },
     headerText: {
         fontSize: 30,

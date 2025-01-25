@@ -1,11 +1,60 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, Alert } from 'react-native'
+import React, { useState } from 'react'
 import Colors from '@/constant/Colors'
 import { useRouter } from 'expo-router';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+// import { auth } from "@/config/FirebaseConfig";
 
 export default function SignInPage() {
 
     const router = useRouter();
+    const auth = getAuth();
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const validateEmail = (input: string) => {
+        const emailPattern = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,24}$/;
+        if (!emailPattern.test(input)) {
+            Alert.alert('Warning', 'Enter a valid email address');
+            return false;
+        }
+        return true;
+    };
+
+    const validatePassword = (input: string) => {
+        if (input.length < 8) {
+            Alert.alert('Warning', 'Password must be atleast 8 characters long');
+            return false;
+        }
+        return true;
+    };
+
+    const OnSignInClick = () => {
+        if (email.trim() === '' || password.trim() === '') {
+            Alert.alert('Warning', 'Please fill in all fields');
+            return;
+        }
+        if (!validateEmail(email) || !validatePassword(password)) {
+            return;
+        }
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                console.log(user);
+                router.push('/(tabs)');
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorCode, errorMessage);
+                if (errorCode == 'auth/invalid-credential')
+                    Alert.alert('Invalid email or password');
+            }
+            );
+    }
 
     return (
         <View style={styles?.container}>
@@ -21,6 +70,9 @@ export default function SignInPage() {
                     <TextInput
                         style={styles?.input}
                         placeholder="Enter your email"
+                        textContentType='emailAddress'
+                        onChangeText={setEmail}
+                        value={email}
                     />
                 </View>
 
@@ -30,10 +82,13 @@ export default function SignInPage() {
                         style={styles?.input}
                         secureTextEntry={true}
                         placeholder="Enter your password"
+                        textContentType='password'
+                        onChangeText={setPassword}
+                        value={password}
                     />
                 </View>
 
-                <TouchableOpacity style={[styles?.button, styles?.buttonPrimary]} onPress={() => { }}>
+                <TouchableOpacity style={[styles?.button, styles?.buttonPrimary]} onPress={OnSignInClick}>
                     <Text style={styles?.btnTextPrimary}>Login</Text>
                 </TouchableOpacity>
 
@@ -73,7 +128,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         gap: 20,
-        marginVertical: 20,
+        marginTop: 50,
     },
     inputContainer: {
         display: 'flex',
