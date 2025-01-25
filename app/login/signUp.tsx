@@ -3,19 +3,27 @@ import React from 'react'
 import Colors from '@/constant/Colors'
 import { useRouter } from 'expo-router';
 
-export default function SignInPage() {
+export default function SignUpPage() {
 
     const router = useRouter();
 
     return (
         <View style={styles?.container}>
             <View style={styles?.textContainer}>
-                <Text style={styles?.headerText}>Let's Sign You In</Text>
-                <Text style={styles?.headerSubText}>Welcome Back</Text>
-                <Text style={styles?.headerSubText}>You have been missed</Text>
+                <Text style={styles?.headerText}>Create New Account</Text>
+                <Text style={styles?.headerSubText}>Please fill in the details</Text>
+                {/* <Text style={styles?.headerSubText}>You have been missed</Text> */}
             </View>
 
             <View style={styles?.formContainer}>
+                <View style={styles?.inputContainer}>
+                    <Text style={styles?.labelText}>Full Name</Text>
+                    <TextInput
+                        style={styles?.input}
+                        placeholder="Enter your full name"
+                    />
+                </View>
+
                 <View style={styles?.inputContainer}>
                     <Text style={styles?.labelText}>Email</Text>
                     <TextInput
@@ -34,11 +42,11 @@ export default function SignInPage() {
                 </View>
 
                 <TouchableOpacity style={[styles?.button, styles?.buttonPrimary]} onPress={() => { }}>
-                    <Text style={styles?.btnTextPrimary}>Login</Text>
+                    <Text style={styles?.btnTextPrimary}>Sign Up</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles?.button, styles?.buttonSecondary]} onPress={() => router.replace('/login/signUp')}>
-                    <Text style={styles?.btnTextSecondary}>Create Account</Text>
+                <TouchableOpacity style={[styles?.button, styles?.buttonSecondary]} onPress={() => router.replace('/login/signIn')}>
+                    <Text style={styles?.btnTextSecondary}>Already have an account? Sign In</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -65,7 +73,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     headerSubText: {
-        fontSize: 30,
+        fontSize: 25,
         fontWeight: 'bold',
         color: Colors.GRAY,
     },
