@@ -1,14 +1,14 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, Alert } from 'react-native'
 import React, { useState } from 'react'
-import Colors from '@/constant/Colors'
 import { useRouter } from 'expo-router';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-// import { auth } from "@/config/FirebaseConfig";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { setLocalStorage } from '@/services/Storage';
+import Styles from '@/constant/Styles';
+import { auth } from "@/config/FirebaseConfig";
 
 export default function SignInPage() {
 
     const router = useRouter();
-    const auth = getAuth();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -40,10 +40,11 @@ export default function SignInPage() {
         }
 
         signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
+            .then(async (userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
                 console.log(user);
+                await setLocalStorage('userDetails', user);
                 router.push('/(tabs)');
             })
             .catch((error) => {
@@ -57,18 +58,18 @@ export default function SignInPage() {
     }
 
     return (
-        <View style={styles?.container}>
+        <View style={Styles.container}>
             <View style={styles?.textContainer}>
-                <Text style={styles?.headerText}>Let's Sign You In</Text>
-                <Text style={styles?.headerSubText}>Welcome Back</Text>
-                <Text style={styles?.headerSubText}>You have been missed</Text>
+                <Text style={Styles.headerText}>Let's Sign You In</Text>
+                <Text style={Styles.headerSubText}>Welcome Back</Text>
+                <Text style={Styles.headerSubText}>You have been missed</Text>
             </View>
 
             <View style={styles?.formContainer}>
-                <View style={styles?.inputContainer}>
-                    <Text style={styles?.labelText}>Email</Text>
+                <View style={Styles.inputContainer}>
+                    <Text style={Styles.labelText}>Email</Text>
                     <TextInput
-                        style={styles?.input}
+                        style={Styles.input}
                         placeholder="Enter your email"
                         textContentType='emailAddress'
                         onChangeText={setEmail}
@@ -76,10 +77,10 @@ export default function SignInPage() {
                     />
                 </View>
 
-                <View style={styles?.inputContainer}>
-                    <Text style={styles?.labelText}>Password</Text>
+                <View style={Styles.inputContainer}>
+                    <Text style={Styles.labelText}>Password</Text>
                     <TextInput
-                        style={styles?.input}
+                        style={Styles.input}
                         secureTextEntry={true}
                         placeholder="Enter your password"
                         textContentType='password'
@@ -88,12 +89,12 @@ export default function SignInPage() {
                     />
                 </View>
 
-                <TouchableOpacity style={[styles?.button, styles?.buttonPrimary]} onPress={OnSignInClick}>
-                    <Text style={styles?.btnTextPrimary}>Login</Text>
+                <TouchableOpacity style={Styles.btnPrimary} onPress={OnSignInClick}>
+                    <Text style={Styles.btnPrimaryText}>Login</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles?.button, styles?.buttonSecondary]} onPress={() => router.replace('/login/signUp')}>
-                    <Text style={styles?.btnTextSecondary}>Create Account</Text>
+                <TouchableOpacity style={Styles.btnSecondary} onPress={() => router.replace('/login/signUp')}>
+                    <Text style={Styles.btnSecondaryText}>Create Account</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -103,26 +104,10 @@ export default function SignInPage() {
 
 
 const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        width: '100%',
-        padding: 30,
-    },
     textContainer: {
         display: 'flex',
         flexDirection: 'column',
         gap: 5,
-    },
-    headerText: {
-        fontSize: 30,
-        fontWeight: 'bold',
-    },
-    headerSubText: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        color: Colors.GRAY,
     },
     formContainer: {
         display: 'flex',
@@ -130,42 +115,4 @@ const styles = StyleSheet.create({
         gap: 20,
         marginTop: 50,
     },
-    inputContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 5,
-    },
-    labelText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    input: {
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 10,
-    },
-    button: {
-        width: '100%',
-        height: 50,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonPrimary: {
-        backgroundColor: Colors.PRIMARY,
-    },
-    btnTextPrimary: {
-        fontSize: 17,
-        fontWeight: 'bold',
-        color: Colors.WHITE,
-    },
-    buttonSecondary: {
-        backgroundColor: Colors.WHITE,
-    },
-    btnTextSecondary: {
-        fontSize: 17,
-        fontWeight: 'bold',
-        color: Colors.PRIMARY,
-    }
 })

@@ -2,22 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-// import { auth } from "@/config/FirebaseConfig";
 import { ActivityIndicator, View } from 'react-native';
+import { getLocalStorage } from '@/services/Storage';
 
 export default function TabLayout() {
     const router = useRouter();
-    const auth = getAuth();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setIsAuthenticated(!!user);
-        });
+        const fetchUserDetails = async () => {
+            try {
+                const userInfo = await getLocalStorage('userDetails');
+                setIsAuthenticated(!!userInfo); // Set true if userInfo exists, otherwise false
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+                setIsAuthenticated(false); // Ensure state is set to false on error
+            }
+        };
 
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
+        fetchUserDetails();
     }, []);
 
     useEffect(() => {

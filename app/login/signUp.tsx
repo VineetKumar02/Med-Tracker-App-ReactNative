@@ -1,16 +1,16 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ToastAndroid, Alert } from 'react-native'
 import React, { useState } from 'react'
-import Colors from '@/constant/Colors'
 import { useRouter } from 'expo-router';
-// import { auth } from "@/config/FirebaseConfig";
-import { createUserWithEmailAndPassword, getAuth, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { setLocalStorage } from '@/services/Storage';
+import Styles from '@/constant/Styles';
+import { auth } from "@/config/FirebaseConfig";
 
 export default function SignUpPage() {
 
     const router = useRouter();
-    const auth = getAuth();
 
-    const [name, setName] = useState('');
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -32,7 +32,7 @@ export default function SignUpPage() {
     };
 
     const OnCreateAccount = () => {
-        if (name.trim() === '' || email.trim() === '' || password.trim() === '') {
+        if (fullName.trim() === '' || email.trim() === '' || password.trim() === '') {
             Alert.alert('Warning', 'Please fill in all fields');
             return;
         }
@@ -45,10 +45,11 @@ export default function SignUpPage() {
                 const user = userCredential.user;
 
                 await updateProfile(user, {
-                    displayName: name,
+                    displayName: fullName,
                 });
 
                 console.log(user);
+                await setLocalStorage('userDetails', user);
                 router.push('/(tabs)');
             })
             .catch((error) => {
@@ -62,29 +63,29 @@ export default function SignUpPage() {
     }
 
     return (
-        <View style={styles?.container}>
+        <View style={Styles.container}>
             <View style={styles?.textContainer}>
-                <Text style={styles?.headerText}>Create New Account</Text>
-                <Text style={styles?.headerSubText}>Please fill in the details</Text>
+                <Text style={Styles.headerText}>Create New Account</Text>
+                <Text style={Styles.headerSubText}>Please fill in the details</Text>
                 {/* <Text style={styles?.headerSubText}>You have been missed</Text> */}
             </View>
 
             <View style={styles?.formContainer}>
-                <View style={styles?.inputContainer}>
-                    <Text style={styles?.labelText}>Full Name</Text>
+                <View style={Styles.inputContainer}>
+                    <Text style={Styles.labelText}>Full Name</Text>
                     <TextInput
-                        style={styles?.input}
-                        placeholder="Enter your full name"
+                        style={Styles.input}
+                        placeholder="Enter your full fullName"
                         textContentType='name'
-                        onChangeText={setName}
-                        value={name}
+                        onChangeText={setFullName}
+                        value={fullName}
                     />
                 </View>
 
-                <View style={styles?.inputContainer}>
-                    <Text style={styles?.labelText}>Email</Text>
+                <View style={Styles.inputContainer}>
+                    <Text style={Styles.labelText}>Email</Text>
                     <TextInput
-                        style={styles?.input}
+                        style={Styles.input}
                         placeholder="Enter your email"
                         textContentType='emailAddress'
                         onChangeText={setEmail}
@@ -92,10 +93,10 @@ export default function SignUpPage() {
                     />
                 </View>
 
-                <View style={styles?.inputContainer}>
-                    <Text style={styles?.labelText}>Password</Text>
+                <View style={Styles.inputContainer}>
+                    <Text style={Styles.labelText}>Password</Text>
                     <TextInput
-                        style={styles?.input}
+                        style={Styles.input}
                         secureTextEntry={true}
                         placeholder="Enter your password"
                         textContentType='password'
@@ -104,12 +105,12 @@ export default function SignUpPage() {
                     />
                 </View>
 
-                <TouchableOpacity style={[styles?.button, styles?.buttonPrimary]} onPress={OnCreateAccount}>
-                    <Text style={styles?.btnTextPrimary}>Sign Up</Text>
+                <TouchableOpacity style={Styles.btnPrimary} onPress={OnCreateAccount}>
+                    <Text style={Styles.btnPrimaryText}>Sign Up</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles?.button, styles?.buttonSecondary]} onPress={() => router.replace('/login/signIn')}>
-                    <Text style={styles?.btnTextSecondary}>Already have an account? Sign In</Text>
+                <TouchableOpacity style={Styles.btnSecondary} onPress={() => router.replace('/login/signIn')}>
+                    <Text style={Styles.btnSecondaryText}>Already have an account? Sign In</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -119,26 +120,10 @@ export default function SignUpPage() {
 
 
 const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        width: '100%',
-        padding: 30,
-    },
     textContainer: {
         display: 'flex',
         flexDirection: 'column',
         gap: 5,
-    },
-    headerText: {
-        fontSize: 30,
-        fontWeight: 'bold',
-    },
-    headerSubText: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        color: Colors.GRAY,
     },
     formContainer: {
         display: 'flex',
@@ -146,42 +131,4 @@ const styles = StyleSheet.create({
         gap: 20,
         marginTop: 50,
     },
-    inputContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 5,
-    },
-    labelText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    input: {
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 10,
-    },
-    button: {
-        width: '100%',
-        height: 50,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonPrimary: {
-        backgroundColor: Colors.PRIMARY,
-    },
-    btnTextPrimary: {
-        fontSize: 17,
-        fontWeight: 'bold',
-        color: Colors.WHITE,
-    },
-    buttonSecondary: {
-        backgroundColor: Colors.WHITE,
-    },
-    btnTextSecondary: {
-        fontSize: 17,
-        fontWeight: 'bold',
-        color: Colors.PRIMARY,
-    }
 })

@@ -10,7 +10,7 @@ export default function LoginPage() {
     return (
         <View style={styles?.container}>
             <View>
-                <Image source={require('./../../assets/images/login.png')} style={styles?.image} />
+                <Image source={require('@/assets/images/login.png')} style={styles?.image} />
             </View>
 
             <View style={styles?.bottomContainer}>
