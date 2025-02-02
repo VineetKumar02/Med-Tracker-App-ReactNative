@@ -4,25 +4,29 @@ import Colors from './Colors';
 const button: ViewStyle = {
     width: '100%',
     height: 50,
-    borderRadius: 10,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
 };
 
 export default StyleSheet.create({
     container: {
-        flex: 1,
+        display: 'flex',
         flexDirection: 'column',
+        height: '100%',
+        width: '100%',
         padding: 25,
         gap: 10,
     },
     containerCentered: {
-        flex: 1,
+        display: 'flex',
         flexDirection: 'column',
+        height: '100%',
+        width: '100%',
         padding: 25,
+        gap: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
     },
     headerText: {
         fontSize: 30,
@@ -35,7 +39,8 @@ export default StyleSheet.create({
     },
     inputContainer: {
         flexDirection: 'column',
-        marginBottom: 10, // Replace unsupported `gap` with `marginBottom`
+        gap: 10,
+        backgroundColor: Colors.WHITE,
     },
     labelText: {
         fontSize: 18,
@@ -44,8 +49,10 @@ export default StyleSheet.create({
     input: {
         height: 50,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 5,
         padding: 10,
+        borderColor: Colors.DARK_GRAY,
+        width: '100%',
     },
     btnPrimary: {
         ...button,

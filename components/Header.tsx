@@ -16,7 +16,6 @@ export default function Header() {
     const getUserDetails = async () => {
         const userInfo = await getLocalStorage('userDetails');
         setUser(userInfo);
-        console.log(userInfo);
     }
 
     return (
