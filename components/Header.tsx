@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { getLocalStorage } from '@/services/Storage';
 import Colors from '@/constant/Colors';
+import { StorageKeys } from '@/constant/Constants';
 
 
 export default function Header() {
@@ -14,7 +15,7 @@ export default function Header() {
     }, []);
 
     const getUserDetails = async () => {
-        const userInfo = await getLocalStorage('userDetails');
+        const userInfo = await getLocalStorage(StorageKeys.UserDetails);
         setUser(userInfo);
     }
 

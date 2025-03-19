@@ -1,172 +1,244 @@
-import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Styles from '@/constant/Styles';
 import Colors from '@/constant/Colors';
-import { TypeList, WhenToTake } from '@/constant/Constants';
+import { StorageKeys, TypeList, WhenToTake } from '@/constant/Constants';
 import { Picker } from '@react-native-picker/picker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { FormatDateForText, FormatTimeForText } from '@/services/Date';
+import { MedForm } from '@/models/MedForm';
+import { validateMedForm } from '@/utils/validations';
+import { MedFormErrors } from '@/models/MedFormErrors';
+import { getLocalStorage } from '@/services/Storage';
+import { doc, setDoc } from 'firebase/firestore';
+import { dismissBrowser } from 'expo-web-browser';
+import { db } from '@/config/FirebaseConfig';
+import { useRouter } from 'expo-router';
 
 
 export default function AddMedicationForm() {
 
-    const [formData, setFormData] = useState<any>({});
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
     const [showStartDate, setShowStartDate] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
+    const [formData, setFormData] = useState<MedForm>({
+        name: "",
+        medType: "",
+        dose: "",
+        whenToTake: "",
+        startDate: null,
+        endDate: null,
+        reminderTime: null,
+    });
 
-    const handleInputChange = (field: string, value: any) => {
-        setFormData((prev: any) => ({
-            ...prev,
-            [field]: value
-        }));
+    const [errors, setErrors] = useState<MedFormErrors>({
+        name: "",
+        medType: "",
+        dose: "",
+        whenToTake: "",
+        startDate: "",
+        endDate: "",
+        reminderTime: "",
+    });
 
-        // setFormData({
-        //     ...formData,
-        //     [field]: value
-        // });
-    }
+    const handleInputChange = (field: keyof MedForm, value: any) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setErrors((prev) => ({ ...prev, [field]: "" })); // Remove error when user types
+    };
 
-    const handleSubmit = () => {
-        console.log(formData);
-    }
+    const handleSubmit = async () => {
+        const validationErrors = validateMedForm(formData);
+        if (Object.keys(validationErrors).length) {
+            setErrors(validationErrors);
+        } else {
+            setLoading(true);
+            console.log("Form Submitted Successfully", formData);
+            const userInfo: any = await getLocalStorage(StorageKeys.UserDetails);
+            const docId = Date.now().toString();
+            // Add to Firestore
+            try {
+                await setDoc(doc(db, 'medications', docId), {
+                    ...formData,
+                    userEmail: userInfo?.email,
+                    docId: docId,
+                });
+                Alert.alert("Success", "Medication details saved successfully");
+            }
+            catch (e) {
+                Alert.alert("Error", "Error saving medication details: " + e,
+                    [{
+                        text: 'OK', onPress: () => router.push('/(tabs)')
+                    }]);
+            }
+            finally {
+                setLoading(false);
+            }
+        }
+    };
 
     return (
         <View style={styles?.container}>
             <Text style={styles?.title}>➕ Add New Medication Details</Text>
 
             {/* Medicine Name Input */}
-            <View style={styles?.inputContainer}>
-                <Ionicons name="medkit-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
-                <TextInput
-                    style={styles?.input}
-                    placeholder="Medicine Name"
-                    textContentType='name'
-                    onChangeText={(value) => handleInputChange('name', value)}
-                />
+            <View style={styles?.inputContainerWithError}>
+                <View style={[styles?.inputContainer, errors.name ? Styles.inputError : {}]}>
+                    <Ionicons name="medkit-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
+                    <TextInput
+                        style={styles?.input}
+                        placeholder="Medicine Name"
+                        inputMode='text'
+                        onChangeText={(value) => handleInputChange('name', value)}
+                    />
+                </View>
+                {errors.name && <Text style={Styles.errorText}>{errors.name}</Text>}
             </View>
 
 
             {/* Medicine Type Input */}
-            <FlatList
-                style={styles?.listContainer}
-                data={TypeList}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity
-                        key={index}
-                        style={[styles?.listItem, { backgroundColor: formData?.medType === item?.name ? Colors.PRIMARY : Colors.WHITE }]}
-                        onPress={() => handleInputChange('medType', item?.name)}
-                    >
-                        <Text style={{ color: formData?.medType === item?.name ? Colors.WHITE : Colors.BLACK }}>{item?.name}</Text>
-                    </TouchableOpacity>
-                )}
-            />
+            <View style={styles?.inputContainerWithError}>
+                <FlatList
+                    style={styles?.listContainer}
+                    data={TypeList}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+                    renderItem={({ item, index }) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles?.listItem, { backgroundColor: formData?.medType === item?.name ? Colors.PRIMARY : Colors.WHITE }]}
+                            onPress={() => handleInputChange('medType', item?.name)}
+                        >
+                            <Text style={{ color: formData?.medType === item?.name ? Colors.WHITE : Colors.BLACK }}>{item?.name}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
+                {errors.medType && <Text style={Styles.errorText}>{errors.medType}</Text>}
+            </View>
 
             {/* Medicine Dose Input */}
-            <View style={styles?.inputContainer}>
-                <Ionicons name="eyedrop-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
-                <TextInput
-                    style={styles?.input}
-                    placeholder="Dose Ex. 2, 5ml"
-                    textContentType='name'
-                    onChangeText={(value) => handleInputChange('dose', value)}
-                />
+            <View style={styles?.inputContainerWithError}>
+                <View style={[styles?.inputContainer, errors.medType ? Styles.inputError : {}]}>
+                    <Ionicons name="eyedrop-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
+                    <TextInput
+                        style={styles?.input}
+                        placeholder="Dose Ex. 2, 5ml"
+                        inputMode='text'
+                        onChangeText={(value) => handleInputChange('dose', value)}
+                    />
+                </View>
+                {errors.dose && <Text style={Styles.errorText}>{errors.dose}</Text>}
             </View>
 
 
             {/* Medicine Frequency Input */}
-            <View style={styles?.inputContainer}>
-                <Ionicons name="time-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
-                <Picker
-                    selectedValue={formData?.whenToTake}
-                    onValueChange={(value) => handleInputChange('whenToTake', value)}
-                    style={styles?.selectInput}
-                >
-                    {
-                        WhenToTake.map((item, index) => (
-                            <Picker.Item key={index} label={item} value={item} style={styles.input} />
-                        ))
-                    }
+            <View style={styles?.inputContainerWithError}>
+                <View style={[styles?.inputContainer, errors.whenToTake ? Styles.inputError : {}]}>
+                    <Ionicons name="time-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
+                    <Picker
+                        selectedValue={formData?.whenToTake}
+                        onValueChange={(value) => handleInputChange('whenToTake', value)}
+                        style={styles?.selectInput}
+                    >
+                        {
+                            WhenToTake.map((item, index) => (
+                                <Picker.Item key={index} label={item} value={item} style={styles.input} />
+                            ))
+                        }
 
-                </Picker>
+                    </Picker>
+                </View>
+                {errors.whenToTake && <Text style={Styles.errorText}>{errors.whenToTake}</Text>}
             </View>
 
 
             {/* Medicine Start and End Date Input */}
             <View style={styles?.dateInputContainer}>
-                <TouchableOpacity style={[styles?.inputContainer, { flex: 1 }]} onPress={() => setShowStartDate(true)}>
-                    <Ionicons name="calendar-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
-                    <Text style={styles?.dateText}>
-                        {formData?.startDate ? FormatDateForText(formData?.startDate) : 'Start Date'}
-                    </Text>
-                    {showStartDate && (
-                        <RNDateTimePicker
-                            minimumDate={new Date()} // Ensure start date is after today
-                            onChange={(event, selectedDate) => {
-                                setShowStartDate(false); // Hide the picker
-                                if (selectedDate && !isNaN(selectedDate.getTime())) {
-                                    handleInputChange('startDate', selectedDate);
-                                }
-                            }}
-                            value={new Date(formData?.startDate) ?? new Date()}
-                        />
-                    )}
-                </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles?.inputContainer, { flex: 1 }]}
-                    onPress={() => setShowEndDate(true)}
-                >
-                    <Ionicons name="calendar-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
-                    <Text style={styles?.dateText}>
-                        {formData?.endDate ? FormatDateForText(formData.endDate) : 'End Date'}
-                    </Text>
-                    {showEndDate && (
-                        <RNDateTimePicker
-                            minimumDate={formData?.startDate ? new Date(formData.startDate) : new Date()} // Default to today if undefined
-                            onChange={(event, selectedDate) => {
-                                setShowEndDate(false); // Hide the picker
-                                if (selectedDate && !isNaN(selectedDate.getTime())) {
-                                    handleInputChange('endDate', selectedDate);
-                                }
-                            }}
-                            value={new Date(formData?.endDate) ?? new Date()}
-                        />
+                <View style={[styles?.inputContainerWithError, { flex: 1 }]}>
+                    <TouchableOpacity
+                        style={[styles?.inputContainer, errors.startDate ? Styles.inputError : {}]}
+                        onPress={() => setShowStartDate(true)}
+                    >
+                        <Ionicons name="calendar-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
+                        <Text style={styles?.dateText}>
+                            {formData?.startDate ? FormatDateForText(formData?.startDate) : 'Start Date'}
+                        </Text>
+                        {showStartDate && (
+                            <RNDateTimePicker
+                                minimumDate={new Date()} // Ensure start date is after today
+                                onChange={(event, selectedDate) => {
+                                    setShowStartDate(false); // Hide the picker
+                                    if (selectedDate && !isNaN(selectedDate.getTime())) {
+                                        handleInputChange('startDate', selectedDate);
+                                    }
+                                }}
+                                value={new Date(formData?.startDate) ?? new Date()}
+                            />
+                        )}
+                    </TouchableOpacity>
+                    {errors.startDate && <Text style={Styles.errorText}>{errors.startDate}</Text>}
+                </View>
 
-                    )}
-                </TouchableOpacity>
+                <View style={[styles?.inputContainerWithError, { flex: 1 }]}>
+                    <TouchableOpacity
+                        style={[styles?.inputContainer, errors.endDate ? Styles.inputError : {}]}
+                        onPress={() => setShowEndDate(true)}
+                    >
+                        <Ionicons name="calendar-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
+                        <Text style={styles?.dateText}>
+                            {formData?.endDate ? FormatDateForText(formData.endDate) : 'End Date'}
+                        </Text>
+                        {showEndDate && (
+                            <RNDateTimePicker
+                                minimumDate={formData?.startDate ? new Date(formData.startDate) : new Date()} // Default to today if undefined
+                                onChange={(event, selectedDate) => {
+                                    setShowEndDate(false); // Hide the picker
+                                    if (selectedDate && !isNaN(selectedDate.getTime())) {
+                                        handleInputChange('endDate', selectedDate);
+                                    }
+                                }}
+                                value={new Date(formData?.endDate) ?? new Date()}
+                            />
+
+                        )}
+                    </TouchableOpacity>{errors.endDate && <Text style={Styles.errorText}>{errors.endDate}</Text>}
+                </View>
             </View>
 
             {/* Set Reminder Input */}
-            <TouchableOpacity style={styles?.inputContainer} onPress={() => setShowTimePicker(true)}>
-                <Ionicons name="notifications-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
-                <Text style={styles?.dateText}>
-                    {formData?.reminderTime ? FormatTimeForText(formData?.reminderTime) : 'Reminder Time'}
-                </Text>
-                {showTimePicker && (
-                    <RNDateTimePicker
-                        minimumDate={new Date()} // Ensure start date is after today
-                        mode='time'
-                        onChange={(event, selectedTime) => {
-                            setShowTimePicker(false); // Hide the picker
-                            console.log(selectedTime);
-                            if (selectedTime && !isNaN(selectedTime.getTime())) {
-                                handleInputChange('reminderTime', selectedTime);
-                            }
-                        }}
-                        value={new Date(formData?.reminderTime) ?? new Date()}
-                    />
-                )}
-            </TouchableOpacity>
+            <View style={styles?.inputContainerWithError}>
+                <TouchableOpacity style={[styles?.inputContainer, errors.reminderTime ? Styles.inputError : {}]} onPress={() => setShowTimePicker(true)}>
+                    <Ionicons name="notifications-outline" size={24} color={Colors.PRIMARY} style={styles?.icon} />
+                    <Text style={styles?.dateText}>
+                        {formData?.reminderTime ? FormatTimeForText(formData?.reminderTime) : 'Reminder Time'}
+                    </Text>
+                    {showTimePicker && (
+                        <RNDateTimePicker
+                            minimumDate={new Date()} // Ensure start date is after today
+                            mode='time'
+                            onChange={(event, selectedTime) => {
+                                setShowTimePicker(false); // Hide the picker
+                                if (selectedTime && !isNaN(selectedTime.getTime())) {
+                                    handleInputChange('reminderTime', selectedTime);
+                                }
+                            }}
+                            value={new Date(formData?.reminderTime) ?? new Date()}
+                        />
+                    )}
+                </TouchableOpacity>
+                {errors.reminderTime && <Text style={Styles.errorText}>{errors.reminderTime}</Text>}
+            </View>
 
 
             {/* Submit Button */}
             <TouchableOpacity style={Styles.btnPrimary} onPress={handleSubmit}>
-                <Text style={Styles.btnPrimaryText}>Add New Medication  💊</Text>
+                {loading ?
+                    <ActivityIndicator color={Colors.WHITE} size={'large'} /> :
+                    <Text style={Styles.btnPrimaryText}>Add New Medication  💊</Text>}
             </TouchableOpacity>
         </View>
     )
@@ -191,6 +263,13 @@ const styles = StyleSheet.create({
         borderColor: Colors.GRAY,
         backgroundColor: Colors.WHITE,
         gap: 10,
+        minHeight: 50,
+    },
+    inputContainerWithError: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        minHeight: 50,
     },
     dateInputContainer: {
         display: 'flex',

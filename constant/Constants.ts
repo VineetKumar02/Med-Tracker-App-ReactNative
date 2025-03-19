@@ -42,3 +42,8 @@ export const DefaultStrings = {
     MedicationSubText: 'Add a new medication to get started',
     AddNewMedicationBtn: '+ Add New Medication'
 }
+
+export const StorageKeys = {
+    UserDetails: 'userDetails',
+    Medications: 'medications'
+}

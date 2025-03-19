@@ -26,3 +26,19 @@ export const FormatTimeForText = (date: Date) => {
         minute: '2-digit',
     });
 };
+
+export const getDateRangeToDisplay = () => {
+    const dateList = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(today);
+        currentDate.setDate(today.getDate() + i);
+        dateList.push({
+            date: currentDate.toLocaleDateString('en-GB'),
+            day: currentDate.getDate().toString().padStart(2, '0'),
+            dayName: currentDate.toLocaleString('default', { weekday: 'short' }),
+            year: currentDate.getFullYear().toString(),
+        });
+    }
+    return dateList;
+}

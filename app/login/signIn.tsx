@@ -5,13 +5,14 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { setLocalStorage } from '@/services/Storage';
 import Styles from '@/constant/Styles';
 import { auth } from "@/config/FirebaseConfig";
+import { StorageKeys } from '@/constant/Constants';
 
 export default function SignInPage() {
 
     const router = useRouter();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('test@gmail.com');
+    const [password, setPassword] = useState('12345678');
 
     const validateEmail = (input: string) => {
         const emailPattern = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,24}$/;
@@ -44,7 +45,7 @@ export default function SignInPage() {
                 // Signed in 
                 const user = userCredential.user;
                 console.log(user);
-                await setLocalStorage('userDetails', user);
+                await setLocalStorage(StorageKeys.UserDetails, user);
                 router.push('/(tabs)');
             })
             .catch((error) => {
@@ -71,7 +72,7 @@ export default function SignInPage() {
                     <TextInput
                         style={Styles.input}
                         placeholder="Enter your email"
-                        textContentType='emailAddress'
+                        inputMode='email'
                         onChangeText={setEmail}
                         value={email}
                     />
@@ -83,7 +84,7 @@ export default function SignInPage() {
                         style={Styles.input}
                         secureTextEntry={true}
                         placeholder="Enter your password"
-                        textContentType='password'
+                        inputMode='text'
                         onChangeText={setPassword}
                         value={password}
                     />

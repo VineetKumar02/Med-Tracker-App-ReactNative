@@ -40,7 +40,6 @@ export default StyleSheet.create({
     inputContainer: {
         flexDirection: 'column',
         gap: 10,
-        backgroundColor: Colors.WHITE,
     },
     labelText: {
         fontSize: 18,
@@ -54,6 +53,8 @@ export default StyleSheet.create({
         borderColor: Colors.DARK_GRAY,
         width: '100%',
     },
+    inputError: { borderColor: "red" },
+    errorText: { color: "red", fontSize: 12, marginTop: 5 },
     btnPrimary: {
         ...button,
         backgroundColor: Colors.PRIMARY,

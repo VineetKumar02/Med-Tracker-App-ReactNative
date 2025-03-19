@@ -4,6 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { ActivityIndicator, View } from 'react-native';
 import { getLocalStorage } from '@/services/Storage';
+import { StorageKeys } from '@/constant/Constants';
 
 export default function TabLayout() {
     const router = useRouter();
@@ -12,7 +13,7 @@ export default function TabLayout() {
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
-                const userInfo = await getLocalStorage('userDetails');
+                const userInfo = await getLocalStorage(StorageKeys.UserDetails);
                 setIsAuthenticated(!!userInfo); // Set true if userInfo exists, otherwise false
             } catch (error) {
                 console.error('Error fetching user details:', error);

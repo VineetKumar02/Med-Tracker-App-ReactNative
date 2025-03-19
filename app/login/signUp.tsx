@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { setLocalStorage } from '@/services/Storage';
 import Styles from '@/constant/Styles';
 import { auth } from "@/config/FirebaseConfig";
+import { StorageKeys } from '@/constant/Constants';
 
 export default function SignUpPage() {
 
@@ -49,7 +50,7 @@ export default function SignUpPage() {
                 });
 
                 console.log(user);
-                await setLocalStorage('userDetails', user);
+                await setLocalStorage(StorageKeys.UserDetails, user);
                 router.push('/(tabs)');
             })
             .catch((error) => {
@@ -76,7 +77,7 @@ export default function SignUpPage() {
                     <TextInput
                         style={Styles.input}
                         placeholder="Enter your full fullName"
-                        textContentType='name'
+                        inputMode='text'
                         onChangeText={setFullName}
                         value={fullName}
                     />
@@ -87,7 +88,7 @@ export default function SignUpPage() {
                     <TextInput
                         style={Styles.input}
                         placeholder="Enter your email"
-                        textContentType='emailAddress'
+                        inputMode='email'
                         onChangeText={setEmail}
                         value={email}
                     />
@@ -99,7 +100,7 @@ export default function SignUpPage() {
                         style={Styles.input}
                         secureTextEntry={true}
                         placeholder="Enter your password"
-                        textContentType='password'
+                        inputMode='text'
                         onChangeText={setPassword}
                         value={password}
                     />

@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import { clearLocalStorage } from '@/services/Storage';
 import EmptyState from '@/components/EmptyState';
 import { useRouter } from 'expo-router';
+import MedicationList from '@/components/MedicationList';
 
 export default function HomeScreen() {
 
@@ -17,8 +18,9 @@ export default function HomeScreen() {
   return (
     <View style={Styles.container}>
       <Header />
-      <Button title='Logout' onPress={logOut} />
-      <EmptyState />
+      {/* <Button title='Logout' onPress={logOut} /> */}
+      {/* <EmptyState /> */}
+      <MedicationList />
     </View>
   )
 }
