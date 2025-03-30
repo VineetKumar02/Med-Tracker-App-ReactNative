@@ -1,4 +1,4 @@
-export interface MedForm {
+export interface Medicine {
     name: string;
     medType: string;
     dose: string;

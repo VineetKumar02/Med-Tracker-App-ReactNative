@@ -1,7 +1,7 @@
-import { MedForm } from "@/models/MedForm";
-import { MedFormErrors } from "@/models/MedFormErrors";
+import { Medicine } from "@/models/Medicine";
+import { MedFormErrors } from "@/models/MedFormErrors.model";
 
-export const validateMedForm = (formData: MedForm): MedFormErrors => {
+export const validateMedForm = (formData: Medicine): MedFormErrors => {
     let errors: MedFormErrors = {
         name: '',
         medType: '',

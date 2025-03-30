@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export const FormatDateFromTimestamp = (timestamp: number) => {
     const date = new Date(timestamp);
     date.setHours(0, 0, 0, 0); // Set time to midnight
@@ -42,3 +44,29 @@ export const getDateRangeToDisplay = () => {
     }
     return dateList;
 }
+
+export const getDateRangeArray = (startDate: Date, endDate: Date) => {
+    const dateArray = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+        dateArray.push(currentDate.toLocaleDateString('en-GB'));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dateArray;
+};
+
+export const FormatTimestampToTimeString = (timestamp: Timestamp) => {
+    const date = timestamp.toDate();
+    return date.toLocaleString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+};
+
+export const FormatTimestampToDateString = (timestamp: Timestamp) => {
+    const date = timestamp.toDate();
+    return date.toLocaleDateString('en-GB');
+};

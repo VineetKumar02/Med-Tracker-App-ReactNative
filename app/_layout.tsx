@@ -7,6 +7,12 @@ export default function RootLayout() {
     }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="login" />
+      <Stack.Screen name="add-new-medication" options={{
+        presentation: 'modal',
+      }} />
+      <Stack.Screen name="action-modal" options={{
+        presentation: 'modal',
+      }} />
     </Stack>
   );
 }

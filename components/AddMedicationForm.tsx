@@ -7,9 +7,9 @@ import { StorageKeys, TypeList, WhenToTake } from '@/constant/Constants';
 import { Picker } from '@react-native-picker/picker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { FormatDateForText, FormatTimeForText } from '@/services/Date';
-import { MedForm } from '@/models/MedForm';
+import { Medicine } from '@/models/Medicine';
 import { validateMedForm } from '@/utils/validations';
-import { MedFormErrors } from '@/models/MedFormErrors';
+import { MedFormErrors } from '@/models/MedFormErrors.model';
 import { getLocalStorage } from '@/services/Storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { dismissBrowser } from 'expo-web-browser';
@@ -24,7 +24,7 @@ export default function AddMedicationForm() {
     const [showStartDate, setShowStartDate] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
-    const [formData, setFormData] = useState<MedForm>({
+    const [formData, setFormData] = useState<Medicine>({
         name: "",
         medType: "",
         dose: "",
@@ -44,7 +44,7 @@ export default function AddMedicationForm() {
         reminderTime: "",
     });
 
-    const handleInputChange = (field: keyof MedForm, value: any) => {
+    const handleInputChange = (field: keyof Medicine, value: any) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setErrors((prev) => ({ ...prev, [field]: "" })); // Remove error when user types
     };
@@ -69,9 +69,7 @@ export default function AddMedicationForm() {
             }
             catch (e) {
                 Alert.alert("Error", "Error saving medication details: " + e,
-                    [{
-                        text: 'OK', onPress: () => router.push('/(tabs)')
-                    }]);
+                    [{ text: 'OK', onPress: () => router.push('/(tabs)') }]);
             }
             finally {
                 setLoading(false);

@@ -1,16 +1,23 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import React from 'react'
 import Colors from '@/constant/Colors'
 import { DefaultStrings } from '@/constant/Constants';
 import Styles from '@/constant/Styles';
 import { useRouter } from 'expo-router';
 
-export default function EmptyState() {
+export default function EmptyState({ loading = false }: { loading?: boolean }) {
 
     const router = useRouter();
+    if (loading) {
+        return (
+            <View style={styles?.containerCentered}>
+                <ActivityIndicator size="large" color={Colors.PRIMARY} />
+            </View>
+        )
+    }
 
     return (
-        <View style={Styles.containerCentered}>
+        <View style={styles?.containerCentered}>
             <Image
                 source={require('@/assets/images/medicine.png')}
                 style={styles?.image}
@@ -27,15 +34,22 @@ export default function EmptyState() {
 
 
 const styles = StyleSheet.create({
+    containerCentered: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     image: {
-        width: 150,
-        height: 150,
+        width: 125,
+        height: 125,
         alignSelf: 'center',
     },
     medicationHeaderText: {
         textAlign: 'center',
         marginTop: 20,
-        fontSize: 35,
+        fontSize: 25,
         fontWeight: 'bold',
         textTransform: 'capitalize',
     },

@@ -47,3 +47,8 @@ export const StorageKeys = {
     UserDetails: 'userDetails',
     Medications: 'medications'
 }
+
+export const getIconUrlByName = (name: string): string | undefined => {
+    const type = TypeList.find(item => item.name.toLowerCase() === name.toLowerCase());
+    return type?.icon;
+};

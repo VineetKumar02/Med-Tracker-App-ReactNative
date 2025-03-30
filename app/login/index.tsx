@@ -2,13 +2,14 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import Colors from '@/constant/Colors'
 import { useRouter } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginPage() {
 
     const router = useRouter();
 
     return (
-        <View style={styles?.container}>
+        <SafeAreaView style={styles?.container}>
             <View>
                 <Image source={require('@/assets/images/login.png')} style={styles?.image} />
             </View>
@@ -21,7 +22,7 @@ export default function LoginPage() {
                 </TouchableOpacity>
                 <Text style={{ color: Colors.WHITE }}>Note: By Clicking Continue button, you will agree to our terms and conditions</Text>
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 
